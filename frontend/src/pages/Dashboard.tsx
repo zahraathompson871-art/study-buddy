@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import {use, useEffect, useState } from "react";
 import SubjectList from "../components/SubjectList";
+import type { Studysession } from "../types/sessions";
 
 export default function Dashboard() {
     //State = data that can change while the app is running. 
@@ -7,6 +8,13 @@ export default function Dashboard() {
 
     //This stores what the user is typing in the input field.
     const [newSubject, setNewSubject] = useState("");
+
+    const [activeSubject, setActiveSubject] = useState<string | null>(null);
+    const [seconds, setSeconds] = useState(0);
+    const [sessions, setSessions] = useState<Studysession[]>(() => {
+        const saved = localStorage.getItem("sessions");
+        return saved ? JSON.parse(saved) : [];
+    });
 
     //Load saved subjects when app starts.
     useEffect(() => {
@@ -21,7 +29,25 @@ export default function Dashboard() {
         if (subjects.length === 0) return; 
 
             localStorage.setItem("subjects", JSON.stringify(subjects));
-        }, [subjects]);
+    }, [subjects]);
+
+    useEffect(() => {
+        let interval: number | undefined;
+
+        if (activeSubject) {
+            interval = window.setInterval(() => {
+                setSeconds((prev) => prev + 1);
+            }, 1000);
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [activeSubject]);
+
+    useEffect(() => {
+        localStorage.setItem("sessions", JSON.stringify(sessions));
+    }, [sessions]);
 
     // Adds a new subject, takes current subjects and adds the new one to the list, then clears the input field.
     function handleAddSubject() {
@@ -34,7 +60,27 @@ export default function Dashboard() {
     function handleDeleteSubject(index: number) {
         const updatedSubjects = subjects.filter((_, i) => i !== index);
         setSubjects(updatedSubjects);
-    }   
+    } 
+    
+    function startSession(subject: string) {
+        setActiveSubject(subject);
+        setSeconds(0);
+    }
+
+    function stopSession() {
+        if (!activeSubject) return;
+
+        const newSession: Studysession = {
+            id: crypto.randomUUID(),
+            subject: activeSubject,
+            duration: seconds,
+            date: new Date().toISOString(),
+        };
+
+        setSessions((prev) => [...prev, newSession]);
+        setActiveSubject(null);
+        setSeconds(0);
+    }
 
     return (
         <div>
@@ -50,6 +96,25 @@ export default function Dashboard() {
             <SubjectList subjects={subjects}
              onDelete={handleDeleteSubject}
              />
+
+             {subjects.map((subject) => (
+                <div key={subject}>
+                    <span>{subject}</span>
+                    <button onClick={() => startSession(subject)}>Start Session</button>
+                </div>
+            ))}
+
+            <h2>Timer: {seconds}s</h2>
+            <button onClick={stopSession}>Stop Session</button>
+
+            <h2>Study Sessions</h2>
+            <ul>
+                {sessions.map((session) => (
+                    <li key={session.id}>
+                        {session.subject} - {session.duration} seconds
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
