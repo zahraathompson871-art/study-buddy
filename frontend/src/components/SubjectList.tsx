@@ -1,9 +1,10 @@
 interface SubjectListProps {
     subjects: string[];
+    onDelete: (index: number) => void;
 }
 
-// This component receives a list of subjects from it's parent (dashboard) and displays them on the screen. If there are no subjects, it shows a message indicating that no subjects have been added yet.
-export default function SubjectList({ subjects }: SubjectListProps) {
+//This component displays subjects and allows deleting them. It does not manage data itself - it only shows ui.
+export default function SubjectList({ subjects, onDelete,}: SubjectListProps) {
     return (
         <div>
             <h2>Subjects</h2>
@@ -13,7 +14,9 @@ export default function SubjectList({ subjects }: SubjectListProps) {
             ) : (
                 <ul>
                     {subjects.map((subject, index) => (
-                        <li key={index}>{subject}</li>
+                        <li key={index}>{subject}
+                        <button onClick={() => onDelete(index)}>Delete</button>
+                        </li>
                     ))}
                 </ul>
             )}
