@@ -2,6 +2,7 @@ import {useEffect, useState } from "react";
 import SubjectList from "../components/SubjectList";
 import type { Studysession } from "../types/sessions";
 import Analytics from "../components/Analytics";
+import Leadership from "../components/Leadership";
 
 export default function Dashboard() {
     //State = data that can change while the app is running. 
@@ -119,6 +120,8 @@ export default function Dashboard() {
 
             {/*Analytics component takes raw session data and turns it into insights.*/}
             <Analytics sessions={sessions} />
+
+            <Leadership sessions={sessions} />
         </div>
     );
 }
