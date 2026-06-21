@@ -1,6 +1,7 @@
-import {use, useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import SubjectList from "../components/SubjectList";
 import type { Studysession } from "../types/sessions";
+import Analytics from "../components/Analytics";
 
 export default function Dashboard() {
     //State = data that can change while the app is running. 
@@ -115,6 +116,9 @@ export default function Dashboard() {
                     </li>
                 ))}
             </ul>
+
+            {/*Analytics component takes raw session data and turns it into insights.*/}
+            <Analytics sessions={sessions} />
         </div>
     );
 }
